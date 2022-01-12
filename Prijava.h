@@ -2,7 +2,7 @@
 #include<iostream>
 #include<string>
 #include<fstream>
-
+static std::string ImeRadnika;
 void prijava();
 int provjeriNalog(std::string&, std::string&);
 void printMeniSef();

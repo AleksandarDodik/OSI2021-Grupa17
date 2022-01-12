@@ -1,8 +1,11 @@
 #include "Prijava.h"
+#include "Registracija.h"
 #include "Artikal.h"
+#include "Racun.h"
 #include<iostream>
 #include<string>
 #include<fstream>
+
 void prijava()
 {
 	system("cls");
@@ -36,6 +39,7 @@ void prijava()
 	if (daLiPostoji == 2)
 	{
 		povecajBrojPrijava(ime);
+		ImeRadnika = ime;
 		printMeniRadnik();
 	}
 
@@ -46,6 +50,7 @@ void prijava()
 
 	if (daLiPostoji == 20) {
 		promjenaSifre(ime, daLiPostoji);
+		ImeRadnika = ime;
 		printMeniRadnik();
 	}
 }
@@ -53,6 +58,15 @@ void prijava()
 //Ako ne postoji nalog vraca 0, ako je sef 1 a ako je radnik 2, ako sef mora promjeniti sifru 10, ako radnik mora promjeniti sifru 20
 int provjeriNalog(std::string& ime, std::string& sifra)
 {
+	std::string br;
+	std::ifstream Konfig;
+	Konfig.open("Konfiguracija.cfg");
+	if (Konfig.is_open())
+	{
+		getline(Konfig, br, ':');
+		getline(Konfig, br);
+		Konfig.close();
+	}
 	std::ifstream Baza;
 	std::string temp;
 
@@ -70,9 +84,9 @@ int provjeriNalog(std::string& ime, std::string& sifra)
 		if (ime.compare(_ime) == 0 && sifra.compare(_sifra) == 0 && ime.compare("") != 0 && sifra.compare("") != 0)
 		{
 			Baza.close();
-			if (_tipNaloga.compare("s") == 0 && _brojPrijava.compare("10") == 0)
+			if (_tipNaloga.compare("s") == 0 && _brojPrijava.compare(br) == 0)
 				return 10;
-			if (_tipNaloga.compare("r") == 0 && _brojPrijava.compare("10") == 0)
+			if (_tipNaloga.compare("r") == 0 && _brojPrijava.compare(br) == 0)
 				return 20;
 			if (_tipNaloga.compare("s") == 0)
 				return 1;
@@ -84,6 +98,7 @@ int provjeriNalog(std::string& ime, std::string& sifra)
 	return -1;
 
 }
+
 void printMeniSef()
 {
 	int a;
@@ -143,7 +158,7 @@ void printMeniRadnik()
 	switch (a)
 	{
 	case 1:
-		r.dodavanjeArtikala();
+		r.dodavanjeArtikala(ImeRadnika);
 		break;
 	case 2:
 		prijava();
@@ -214,3 +229,4 @@ void povecajBrojPrijava(std::string& Ime)
 	}
 
 }
+
