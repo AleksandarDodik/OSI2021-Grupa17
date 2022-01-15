@@ -12,27 +12,32 @@ void Artikal::setIme(std::string& Ime)
 	this->ime = Ime;
 }
 
-void Artikal::setCijena(int cijena)
+void Artikal::setCijena(double cijena)
 {
 	this->cijena = std::to_string(cijena);
 }
 
-void Artikal::setKolicina(int kolicina)
+void Artikal::setKolicina(double kolicina)
 {
 	this->kolicina = std::to_string(kolicina);
 }
 
-void Artikal::setSedmicna(int sedmicna)
+void Artikal::setDnevna(double dnevna)
+{
+	this->dnevna = dnevna;
+}
+
+void Artikal::setSedmicna(double sedmicna)
 {
 	this->sedmicna = sedmicna;
 }
 
-void Artikal::setMjesecna(int mjesecna)
+void Artikal::setMjesecna(double mjesecna)
 {
 	this->mjesecna = mjesecna;
 }
 
-void Artikal::setGodisnja(int godisnja)
+void Artikal::setGodisnja(double godisnja)
 {
 	this->godisnja = godisnja;
 }
@@ -62,6 +67,11 @@ double Artikal::getMjesecna() const
 	return this->mjesecna;
 }
 
+double Artikal::getDnevna()const
+{
+	return this->dnevna;
+}
+
 double Artikal::getSedmicna() const
 {
 	return this->sedmicna;
@@ -75,7 +85,7 @@ double Artikal::getGodisnja() const
 void Artikal::dodavanjeArtikla()
 {
 	system("cls");
-	std::cout << "\nDodavanje artikla u bazu!(Artikal ako postoji sa istim barkodom dodace se kolicina i postaviti nova cijena)\n";
+	std::cout << "\nDodavanje artikla u bazu!(Ako postoji barkod u bazi dodace se kolicina na postojecu)\n";
 
 	std::string ime, barkod, kolicina, cijena;
 	std::cout << "\tNaziv: ";
@@ -89,7 +99,7 @@ void Artikal::dodavanjeArtikla()
 	std::cout << "\tKolicina: ";
 	std::cin.sync();
 	std::getline(std::cin, kolicina);
-	
+
 	std::cout << "\tCijena: ";
 	std::cin.sync();
 	std::getline(std::cin, cijena);
@@ -97,11 +107,11 @@ void Artikal::dodavanjeArtikla()
 	Artikal novi(ime, barkod, kolicina, cijena);
 	Artikal stari;
 
-	int daLiPostoji=novi.provjeraArtikla();
+	int daLiPostoji = novi.provjeraArtikla();
 
 	if (daLiPostoji)
 	{
-		stari.uzmiPodatkeIzBaze(novi.getIme());
+		stari.uzmiPodatkeIzBaze(novi.getBarkod());
 		novi.setKolicina(stari.getKolicina() + novi.getKolicina());
 		stari.brisanjeArtikla();
 	}
@@ -111,18 +121,17 @@ void Artikal::dodavanjeArtikla()
 
 	if (BazaArtikala.is_open())
 	{
-		BazaArtikala << novi.getIme() << ',' << novi.getBarkod() << ',' << novi.getCijena() << ',' << novi.getKolicina() << ',' << novi.getSedmicna() << ',' << novi.getMjesecna() << ',' << novi.getGodisnja() << '\n';
+		BazaArtikala << novi.getIme() << ',' << novi.getBarkod() << ',' << novi.getCijena() << ',' << novi.getKolicina() << ',' << novi.getDnevna() << ',' << novi.getSedmicna() << ',' << novi.getMjesecna() << ',' << novi.getGodisnja() << '\n';
 		BazaArtikala.close();
 	}
-	printMeniSef();
 }
 
 int Artikal::provjeraArtikla()
 {
-	std::string _ime, _barkod, _cijena, _kolicina, _sedmicna, _mjesecna, _godisnja;
+	std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
 	std::ifstream BazaArtikala;
 	BazaArtikala.open("BazaArtikala.csv");
-	if (BazaArtikala.is_open()) 
+	if (BazaArtikala.is_open())
 	{
 		while (!BazaArtikala.eof())
 		{
@@ -130,10 +139,11 @@ int Artikal::provjeraArtikla()
 			getline(BazaArtikala, _barkod, ',');
 			getline(BazaArtikala, _cijena, ',');
 			getline(BazaArtikala, _kolicina, ',');
+			getline(BazaArtikala, _dnevna, ',');
 			getline(BazaArtikala, _sedmicna, ',');
 			getline(BazaArtikala, _mjesecna, ',');
 			getline(BazaArtikala, _godisnja);
-			if (this->ime.compare(_ime) == 0||this->ime.compare(_barkod)==0)
+			if (this->ime.compare(_ime) == 0 || this->ime.compare(_barkod) == 0 || this->barkod.compare(_barkod) == 0)
 			{
 				BazaArtikala.close();
 				return 1;
@@ -146,7 +156,7 @@ int Artikal::provjeraArtikla()
 
 Artikal& Artikal::uzmiPodatkeIzBaze(const std::string& Ime)
 {
-	std::string _ime, _barkod, _cijena, _kolicina, _sedmicna, _mjesecna, _godisnja;
+	std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
 	std::ifstream BazaArtikala;
 	BazaArtikala.open("BazaArtikala.csv");
 	if (BazaArtikala.is_open())
@@ -157,15 +167,17 @@ Artikal& Artikal::uzmiPodatkeIzBaze(const std::string& Ime)
 			getline(BazaArtikala, _barkod, ',');
 			getline(BazaArtikala, _cijena, ',');
 			getline(BazaArtikala, _kolicina, ',');
+			getline(BazaArtikala, _dnevna, ',');
 			getline(BazaArtikala, _sedmicna, ',');
 			getline(BazaArtikala, _mjesecna, ',');
 			getline(BazaArtikala, _godisnja);
-			if (_ime.compare(Ime) == 0||_barkod.compare(Ime)==0)
+			if (_ime.compare(Ime) == 0 || _barkod.compare(Ime) == 0)
 			{
 				this->setIme(_ime);
 				this->setBarkod(_barkod);
 				this->setCijena(atof(_cijena.c_str()));
 				this->setKolicina(atof(_kolicina.c_str()));
+				this->setDnevna(atof(_dnevna.c_str()));
 				this->setSedmicna(atof(_sedmicna.c_str()));
 				this->setMjesecna(atof(_mjesecna.c_str()));
 				this->setGodisnja(atof(_godisnja.c_str()));
@@ -182,7 +194,7 @@ void Artikal::brisanjeArtikla()
 	std::ifstream BazaArtikala;
 	BazaArtikala.open("BazaArtikala.csv");
 
-	std::string _ime, _barkod,_cijena,_kolicina,_sedmicna,_mjesecna,_godisnja;
+	std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
 
 	//Kreiranje nove baze za upis
 	std::ofstream Temp;
@@ -196,13 +208,14 @@ void Artikal::brisanjeArtikla()
 			getline(BazaArtikala, _barkod, ',');
 			getline(BazaArtikala, _cijena, ',');
 			getline(BazaArtikala, _kolicina, ',');
+			getline(BazaArtikala, _dnevna, ',');
 			getline(BazaArtikala, _sedmicna, ',');
 			getline(BazaArtikala, _mjesecna, ',');
 			getline(BazaArtikala, _godisnja);
 
 			if (this->ime.compare(_ime) != 0 && _ime.compare("") != 0)
 			{
-				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
+				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 			}
 		}
 		BazaArtikala.close();
@@ -227,11 +240,12 @@ void Artikal::brisanjeArtikla()
 			getline(Temp2, _barkod, ',');
 			getline(Temp2, _cijena, ',');
 			getline(Temp2, _kolicina, ',');
+			getline(Temp2, _dnevna, ',');
 			getline(Temp2, _sedmicna, ',');
 			getline(Temp2, _mjesecna, ',');
 			getline(Temp2, _godisnja);
 			if (_ime.compare("") != 0)
-				BazaArtikala2 << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina<<','<<_sedmicna<<','<<_mjesecna<<','<<_godisnja << '\n';
+				BazaArtikala2 << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 		}
 		Temp2.close();
 	}
@@ -241,65 +255,130 @@ void Artikal::brisanjeArtikla()
 
 void Artikal::izvjestaj()
 {
-	system("cls");
-	std::cout << "\nIzvjestaj:\n" << "1. Sedmicni\n" << "2. Mjesecni\n" << "3. Godisnji\n\n" << "4. Izlaz\n";
-
-	int a;
-	do{
-		std::cout << "\nUnesite broj: ";
-		std::cin.sync();
-		std::cin >> a;
-		std::cin.get();//Da pokupi enter
-	} while (a < 1 && a>4);
-	switch (a)
+	int tok = 1;
+	while (tok == 1)
 	{
-	case 1:
-		izradaIzvjestaja(1);
-		break;
-	case 2:
-		izradaIzvjestaja(2);
-		break;
-	case 3:
-		izradaIzvjestaja(3);
-		break;
-	case 4:
-		printMeniSef();
+		system("cls");
+		std::cout << "\nIzvjestaj:\n" << "1. Dnevni\n" << "2. Sedmicni\n" << "3. Mjesecni\n" << "4. Godisnji\n\n" << "5. Izlaz\n";
+
+		int a;
+		do {
+			std::cout << "\nUnesite broj: ";
+			std::cin.sync();
+			std::cin >> a;
+			std::cin.get();//Da pokupi enter
+		} while (a < 1 && a>4);
+		switch (a)
+		{
+		case 1:
+			izradaIzvjestaja(1);
+			break;
+		case 2:
+			izradaIzvjestaja(2);
+			break;
+		case 3:
+			izradaIzvjestaja(3);
+			break;
+		case 4:
+			izradaIzvjestaja(4);
+		default:
+			tok = 0;
+			break;
+		}
 	}
 }
 
 void Artikal::izradaIzvjestaja(int a)
 {
-	int i;
-		system("cls");
+	system("cls");
+	int broj;
+	std::string n;
+	std::cout << "\nUnesite SVI za ispis izvjestaja za sve artikle iz baze\n\n";
+	std::cout << "Unesite broj artikala za koliko zelite izvjestaj: ";
+	std::getline(std::cin, n);
+
+	time_t t = time(0);
+	tm* tPtr = localtime(&t);
+
+	std::string imeIzvjestaja;
+	imeIzvjestaja += "./Izvjestaji/" + std::to_string((tPtr->tm_year) + 1900) + "_" + std::to_string((tPtr->tm_mon) + 1) + "_" + std::to_string(tPtr->tm_mday) + "_" + std::to_string(tPtr->tm_hour) + "_" + std::to_string(tPtr->tm_min) + "_" + std::to_string(tPtr->tm_sec) + ".txt";
+
+	std::ofstream Izvjestaj;
+	Izvjestaj.open(imeIzvjestaja, std::ios::app);
+
+	std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
+
+	if (n.compare("SVI") == 0)
+	{
+		std::ifstream BazaArtikala;
+		BazaArtikala.open("BazaArtikala.csv");
+		if (BazaArtikala.is_open())
+		{
+			while (!BazaArtikala.eof())
+			{
+				getline(BazaArtikala, _ime, ',');
+				getline(BazaArtikala, _barkod, ',');
+				getline(BazaArtikala, _cijena, ',');
+				getline(BazaArtikala, _kolicina, ',');
+				getline(BazaArtikala, _dnevna, ',');
+				getline(BazaArtikala, _sedmicna, ',');
+				getline(BazaArtikala, _mjesecna, ',');
+				getline(BazaArtikala, _godisnja);
+				if (_ime.compare("Artikal") != 0 && _ime.compare("") != 0)
+				{
+					if (a == 1)
+						Izvjestaj << "Dnevna prodaja za artikal " << _ime << " je: " << _dnevna << '\n';
+					if (a == 2)
+						Izvjestaj << "Sedmicna prodaja za artikal " << _ime << " je: " << _sedmicna << '\n';
+					if (a == 3)
+						Izvjestaj << "Mjesecna prodaja za artikal " << _ime << " je: " << _mjesecna << '\n';
+					if (a == 4)
+						Izvjestaj << "Godisnja prodaja za artikal " << _ime << " je: " << _godisnja << '\n';
+				}
+			}
+			BazaArtikala.close();
+		}
+	}
+	else
+	{
+		broj = std::stoi(n.c_str());
 		std::string ime;
-		std::cout << "\nIspis izvjestaja:\n";
-		std::cout << "\tNaziv:";
-		std::cin.sync();
-		std::getline(std::cin, ime);
-		Artikal temp;
-		temp.setIme(ime);
-		if (temp.provjeraArtikla())
+		for (int i = 0; i < broj; i++)
 		{
-			temp.uzmiPodatkeIzBaze(ime);
-			if (a == 1)
-				std::cout << "Sedmicna prodaja za artikal " << temp.getIme() << " je: " << temp.getSedmicna() << std::endl;
-			if(a==2)
-				std::cout << "Mjesecna prodaja za artikal " << temp.getIme() << " je: " << temp.getMjesecna() << std::endl;
-			if(a==3)
-				std::cout << "Sedmicna prodaja za artikal " << temp.getIme() << " je: " << temp.getGodisnja() << std::endl;
+			std::cout << "Ime " << i + 1 << ". artikla: ";
+			std::getline(std::cin, ime);
+			Artikal temp;
+			temp.setIme(ime);
+			temp.setBarkod(ime);//zbog provjere, ostane stari barkod
+			if (temp.provjeraArtikla())
+			{
+				temp.uzmiPodatkeIzBaze(ime);
+				if (a == 1)
+					Izvjestaj << "Dnevna prodaja za artikal " << temp.getIme() << " je: " << temp.getDnevna() << '\n';
+				if (a == 2)
+					Izvjestaj << "Sedmicna prodaja za artikal " << temp.getIme() << " je: " << temp.getDnevna() << '\n';
+				if (a == 3)
+					Izvjestaj << "Mjesecna prodaja za artikal " << temp.getIme() << " je: " << temp.getDnevna() << '\n';
+				if (a == 4)
+					Izvjestaj << "Godisnja prodaja za artikal " << temp.getIme() << " je: " << temp.getDnevna() << '\n';
+			}
+			else
+				std::cout << "Artikal ne postoji u bazi!\n";
 		}
-		else
-		{
-			std::cout << "\nArtikal ne postoji u bazi!";
+	}
+	Izvjestaj.close();
+	std::string pom;
+	std::ifstream Izvjestaj2;
+	Izvjestaj2.open(imeIzvjestaja);
+	if (Izvjestaj2.is_open())
+	{
+		while (!Izvjestaj2.eof()) {
+			getline(Izvjestaj2, pom);
+			std::cout << pom << std::endl;
 		}
-		std::cout << "\n\n1. Ispis novog izvjestaja:\n2.Pocetni meni:\n\nUnesite broj: ";
-		std::cin.sync();
-		std::cin >> i;
-		std::cin.get();
-		if (i == 1)
-			izvjestaj();
-	if (i == 2)
-		printMeniSef();
+		Izvjestaj2.close();
+	}
+	std::cin.get();
 }
 
 void Artikal::obrisiArtikl()
@@ -323,7 +402,7 @@ void Artikal::obrisiArtikl()
 			std::cin.sync();
 			std::cout << "\tKolicina: ";
 			std::getline(std::cin, Kolicina);
-			if (atof(Kolicina.c_str())<0)
+			if (atof(Kolicina.c_str()) < 0)
 			{
 				ispravnostKolicine = false;
 			}
@@ -336,7 +415,7 @@ void Artikal::obrisiArtikl()
 		std::ifstream BazaArtikala;
 		BazaArtikala.open("BazaArtikala.csv");
 
-		std::string _ime, _barkod,_cijena,_kolicina,_sedmicna,_mjesecna,_godisnja;
+		std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
 
 		if (BazaArtikala.is_open())
 		{
@@ -344,8 +423,9 @@ void Artikal::obrisiArtikl()
 			{
 				getline(BazaArtikala, _ime, ',');
 				getline(BazaArtikala, _barkod, ',');
-				getline(BazaArtikala, _cijena,',');
+				getline(BazaArtikala, _cijena, ',');
 				getline(BazaArtikala, _kolicina, ',');
+				getline(BazaArtikala, _dnevna, ',');
 				getline(BazaArtikala, _sedmicna, ',');
 				getline(BazaArtikala, _mjesecna, ',');
 				getline(BazaArtikala, _godisnja);
@@ -375,77 +455,70 @@ void Artikal::obrisiArtikl()
 			BazaArtikala2.open("BazaArtikala.csv", std::ios::app);
 			int n = temp.getKolicina();
 			temp.setKolicina(n - atof(Kolicina.c_str()));
-			BazaArtikala2 << temp.getIme() << ',' << temp.getBarkod() << ',' << temp.getCijena() << ',' << temp.getKolicina() << ',' << temp.getSedmicna() << ',' << temp.getMjesecna() << ',' << temp.getGodisnja() << '\n';
+			BazaArtikala2 << temp.getIme() << ',' << temp.getBarkod() << ',' << temp.getCijena() << ',' << temp.getKolicina() << ',' << temp.getDnevna() << ',' << temp.getSedmicna() << ',' << temp.getMjesecna() << ',' << temp.getGodisnja() << '\n';
 			BazaArtikala2.close();
 		}
 	}
-	printMeniSef();
 }
 
 void Artikal::pregledArtikala()
 {
-	int i = 1;
+	int b = 0;
 	Artikal temp;
-	while (i == 1)
-	{
-		system("cls");
-		std::string Ime, _ime="";
-		bool provjera = true;
-		std::cout << "\nPregled artikla:\n";
-		do {
-			std::cout << "Unesite ime ili barkod artikla: ";
-			std::cin.sync();
-			std::getline(std::cin, Ime);
-			if (Ime.compare("IZLAZ") == 0)
+	system("cls");
+	std::string Ime, _ime = "";
+	bool provjera = true;
+	std::cout << "\nPregled artikla:(unesite IZLAZ za izlazak na meni)\n";
+	do {
+		std::cout << "Unesite ime ili barkod artikla: ";
+		std::cin.sync();
+		std::getline(std::cin, Ime);
+		if (Ime.compare("IZLAZ") == 0)
+		{
+			provjera = false;
+			b = 1;
+		}
+		else
+		{
+
+			std::ifstream BazaArtikala;
+			BazaArtikala.open("BazaArtikala.csv");
+
+			std::string _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
+
+			if (BazaArtikala.is_open())
 			{
-				provjera = false;
-				goto izlaz;
-			}
-			else
-			{
-
-				std::ifstream BazaArtikala;
-				BazaArtikala.open("BazaArtikala.csv");
-
-				std::string _barkod, _cijena, _kolicina, _sedmicna, _mjesecna, _godisnja;
-
-				if (BazaArtikala.is_open())
+				while (!BazaArtikala.eof())
 				{
-					while (!BazaArtikala.eof())
-					{
-						getline(BazaArtikala, _ime, ',');
-						getline(BazaArtikala, _barkod, ',');
-						getline(BazaArtikala, _cijena, ',');
-						getline(BazaArtikala, _kolicina, ',');
-						getline(BazaArtikala, _sedmicna, ',');
-						getline(BazaArtikala, _mjesecna, ',');
-						getline(BazaArtikala, _godisnja);
+					getline(BazaArtikala, _ime, ',');
+					getline(BazaArtikala, _barkod, ',');
+					getline(BazaArtikala, _cijena, ',');
+					getline(BazaArtikala, _kolicina, ',');
+					getline(BazaArtikala, _dnevna, ',');
+					getline(BazaArtikala, _sedmicna, ',');
+					getline(BazaArtikala, _mjesecna, ',');
+					getline(BazaArtikala, _godisnja);
 
-						if (!Ime.compare(_ime) || !Ime.compare(_barkod))
-						{
-							provjera = false;
-							break;
-						}
-						else
-							provjera = true;
+					if (!Ime.compare(_ime) || !Ime.compare(_barkod))
+					{
+						provjera = false;
+						break;
 					}
+					else
+						provjera = true;
 				}
-				BazaArtikala.close();
-				if (provjera)
-					std::cout << "Artikal se ne nalazi u Bazi!\n";
 			}
-		} while (provjera);
+			BazaArtikala.close();
+			if (provjera)
+				std::cout << "Artikal se ne nalazi u Bazi!\n";
+		}
+	} while (provjera);
+	if (b == 0)
+	{
 		temp.uzmiPodatkeIzBaze(Ime);
 		std::cout << "\tNaziv: " << temp.getIme() << "\n\tBarkod: " << temp.getBarkod() << "\n\tCijena: " << temp.getCijena() << "\n\tKolicina: " << temp.getKolicina() << "\n\tVrijednost: " << temp.getCijena() * temp.getKolicina() << std::endl;
-		izlaz:
-		std::cout << "\n\n1. Novi pregled artikla\n" << "2. Pocetni meni\n";
-		std::cout << "\nUnesite broj: ";
-		std::cin.sync();
-		std::cin >> i;
-		std::cin.get();//Da pokupi enter
 	}
-	if (i == 2)
-		printMeniSef();
+	std::cin.get();
 }
 
 void Artikal::brisanjeKolicineArtikala(double x)
@@ -453,7 +526,7 @@ void Artikal::brisanjeKolicineArtikala(double x)
 	std::ifstream BazaArtikala;
 	BazaArtikala.open("BazaArtikala.csv");
 
-	std::string _ime, _barkod, _cijena, _kolicina, _sedmicna, _mjesecna, _godisnja;
+	std::string _ime, _barkod, _cijena, _kolicina, _dnevna, _sedmicna, _mjesecna, _godisnja;
 
 	std::ofstream Temp;
 	Temp.open("BazaArtikalaTemp.csv", std::ios::app);
@@ -466,17 +539,18 @@ void Artikal::brisanjeKolicineArtikala(double x)
 			getline(BazaArtikala, _barkod, ',');
 			getline(BazaArtikala, _cijena, ',');
 			getline(BazaArtikala, _kolicina, ',');
+			getline(BazaArtikala, _dnevna, ',');
 			getline(BazaArtikala, _sedmicna, ',');
 			getline(BazaArtikala, _mjesecna, ',');
 			getline(BazaArtikala, _godisnja);
 
 			if (this->ime.compare(_ime) != 0 && _ime.compare("") != 0)
 			{
-				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
+				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 			}
 			else if (this->ime.compare(_ime) == 0)
 			{
-				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << atof(_kolicina.c_str()) - x << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
+				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << atof(_kolicina.c_str()) - x << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 			}
 		}
 		BazaArtikala.close();
@@ -498,11 +572,12 @@ void Artikal::brisanjeKolicineArtikala(double x)
 			getline(Temp2, _barkod, ',');
 			getline(Temp2, _cijena, ',');
 			getline(Temp2, _kolicina, ',');
+			getline(Temp2, _dnevna, ',');
 			getline(Temp2, _sedmicna, ',');
 			getline(Temp2, _mjesecna, ',');
 			getline(Temp2, _godisnja);
 			if (_ime.compare("") != 0)
-				BazaArtikala2 << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
+				BazaArtikala2 << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 		}
 		Temp2.close();
 	}
@@ -512,7 +587,7 @@ void Artikal::brisanjeKolicineArtikala(double x)
 
 void Artikal::izmjenaIzvjestaja(double x)
 {
-	std::string ime, barkod, cijena, kolicina, sedmicna, mjesecna, godisnja;
+	std::string ime, barkod, cijena, kolicina, dnevna, sedmicna, mjesecna, godisnja;
 	std::ofstream BazaArtikalaTemp;
 	BazaArtikalaTemp.open("BazaArtikalaTemp.csv", std::ios::app);
 	std::ifstream BazaArtikala;
@@ -525,21 +600,22 @@ void Artikal::izmjenaIzvjestaja(double x)
 			getline(BazaArtikala, barkod, ',');
 			getline(BazaArtikala, cijena, ',');
 			getline(BazaArtikala, kolicina, ',');
+			getline(BazaArtikala, dnevna, ',');
 			getline(BazaArtikala, sedmicna, ',');
 			getline(BazaArtikala, mjesecna, ',');
 			getline(BazaArtikala, godisnja);
 			if (ime.compare("") != 0)
 			{
-				if (ime.compare("Artikal")==0 || ime.compare(this->ime)!=0)
+				if (ime.compare("Artikal") == 0 || ime.compare(this->ime) != 0)
 				{
-					BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+					BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << dnevna << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
 				}
 				else
 				{
-						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << atof(sedmicna.c_str()) + x << ',' << atof(mjesecna.c_str()) + x << ',' << atof(godisnja.c_str()) + x << '\n';
-				}
+					BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << atof(dnevna.c_str()) + x << ',' << atof(sedmicna.c_str()) + x << ',' << atof(mjesecna.c_str()) + x << ',' << atof(godisnja.c_str()) + x << '\n';
 				}
 			}
+		}
 		BazaArtikala.close();
 	}
 	BazaArtikalaTemp.close();
@@ -556,12 +632,13 @@ void Artikal::izmjenaIzvjestaja(double x)
 			getline(BazaArtikalaTemp2, barkod, ',');
 			getline(BazaArtikalaTemp2, cijena, ',');
 			getline(BazaArtikalaTemp2, kolicina, ',');
+			getline(BazaArtikalaTemp2, dnevna, ',');
 			getline(BazaArtikalaTemp2, sedmicna, ',');
 			getline(BazaArtikalaTemp2, mjesecna, ',');
 			getline(BazaArtikalaTemp2, godisnja);
 			if (ime.compare("") != 0)
 			{
-				BazaArtikala2 << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+				BazaArtikala2 << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << dnevna << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
 			}
 		}
 		BazaArtikalaTemp2.close();
@@ -572,8 +649,10 @@ void Artikal::izmjenaIzvjestaja(double x)
 
 void Artikal::resetovanjeIzvjestaja()
 {
-	int sRazlika = 0, mRazlika = 0, gRazlika = 0;
-	std::string sDan, sMjes, sGod, temp;
+	int dRazlika = 0, sRazlika = 0, mRazlika = 0, gRazlika = 0;
+	std::string temp;
+	std::string dDan, dMjes, dGod;
+	std::string sDan, sMjes, sGod;
 	std::string mDan, mMjes, mGod;
 	std::string gDan, gMjes, gGod;
 	std::ifstream Konfig;
@@ -585,6 +664,10 @@ void Artikal::resetovanjeIzvjestaja()
 			getline(Konfig, temp);
 			if (temp.compare("IZVJESTAJ:") == 0)
 			{
+				getline(Konfig, temp, ':');
+				getline(Konfig, dDan, '/');
+				getline(Konfig, dMjes, '/');
+				getline(Konfig, dGod);
 				getline(Konfig, temp, ':');
 				getline(Konfig, sDan, '/');
 				getline(Konfig, sMjes, '/');
@@ -606,8 +689,9 @@ void Artikal::resetovanjeIzvjestaja()
 	sRazlika = (((tPtr->tm_year) + 1900) * 365 + ((tPtr->tm_mon) + 1) * 31 + (tPtr->tm_mday)) - ((std::stoi(sGod.c_str())) * 365 + (std::stoi(sMjes.c_str())) * 31 + std::stoi(sDan.c_str()));
 	mRazlika = (((tPtr->tm_year) + 1900) * 365 + ((tPtr->tm_mon) + 1) * 31 + (tPtr->tm_mday)) - ((std::stoi(mGod.c_str())) * 365 + (std::stoi(mMjes.c_str())) * 31 + std::stoi(mDan.c_str()));
 	gRazlika = (((tPtr->tm_year) + 1900) * 365 + ((tPtr->tm_mon) + 1) * 31 + (tPtr->tm_mday)) - ((std::stoi(gGod.c_str())) * 365 + (std::stoi(gMjes.c_str())) * 31 + std::stoi(gDan.c_str()));
+	dRazlika = (((tPtr->tm_year) + 1900) * 365 + ((tPtr->tm_mon) + 1) * 31 + (tPtr->tm_mday)) - ((std::stoi(dGod.c_str())) * 365 + (std::stoi(dMjes.c_str())) * 31 + std::stoi(dDan.c_str()));
 
-	std::string ime, barkod, cijena, kolicina, sedmicna, mjesecna, godisnja;
+	std::string ime, barkod, cijena, kolicina, dnevna, sedmicna, mjesecna, godisnja;
 	std::ofstream BazaArtikalaTemp;
 	BazaArtikalaTemp.open("BazaArtikalaTemp.csv", std::ios::app);
 	std::ifstream BazaArtikala;
@@ -620,6 +704,7 @@ void Artikal::resetovanjeIzvjestaja()
 			getline(BazaArtikala, barkod, ',');
 			getline(BazaArtikala, cijena, ',');
 			getline(BazaArtikala, kolicina, ',');
+			getline(BazaArtikala, dnevna, ',');
 			getline(BazaArtikala, sedmicna, ',');
 			getline(BazaArtikala, mjesecna, ',');
 			getline(BazaArtikala, godisnja);
@@ -627,18 +712,20 @@ void Artikal::resetovanjeIzvjestaja()
 			{
 				if (ime.compare("Artikal") == 0)
 				{
-					BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+					BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << dnevna << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
 				}
 				else
 				{
-					if (sRazlika >= 7 && mRazlika >= 31 && gRazlika >= 365)
-						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << '0' << ',' << '0' << '\n';
-					if (sRazlika >= 7 && mRazlika >= 31 && gRazlika < 365)
-						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << '0' << ',' << godisnja << '\n';
-					if (sRazlika >= 7 && mRazlika < 31 && gRazlika < 365)
-						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << mjesecna << ',' << godisnja << '\n';
-					if (sRazlika < 7)
-						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika >= 31 && gRazlika >= 365)
+						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << '0' << ',' << '0' << ',' << '0' << '\n';
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika >= 31 && gRazlika < 365)
+						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << '0' << ',' << '0' << ',' << godisnja << '\n';
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika < 31 && gRazlika < 365)
+						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << '0' << ',' << mjesecna << ',' << godisnja << '\n';
+					if (dRazlika > 0 && sRazlika < 7)
+						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << '0' << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+					if (dRazlika < 1)
+						BazaArtikalaTemp << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << dnevna << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
 				}
 			}
 		}
@@ -658,12 +745,13 @@ void Artikal::resetovanjeIzvjestaja()
 			getline(BazaArtikalaTemp2, barkod, ',');
 			getline(BazaArtikalaTemp2, cijena, ',');
 			getline(BazaArtikalaTemp2, kolicina, ',');
+			getline(BazaArtikalaTemp2, dnevna, ',');
 			getline(BazaArtikalaTemp2, sedmicna, ',');
 			getline(BazaArtikalaTemp2, mjesecna, ',');
 			getline(BazaArtikalaTemp2, godisnja);
 			if (ime.compare("") != 0)
 			{
-				BazaArtikala2 << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
+				BazaArtikala2 << ime << ',' << barkod << ',' << cijena << ',' << kolicina << ',' << dnevna << ',' << sedmicna << ',' << mjesecna << ',' << godisnja << '\n';
 			}
 		}
 		BazaArtikalaTemp2.close();
@@ -671,7 +759,7 @@ void Artikal::resetovanjeIzvjestaja()
 	BazaArtikala2.close();
 	std::remove("BazaArtikalaTemp.csv");
 
-	std::string red1, red2, red3;
+	std::string red1, red2, red3, red4;
 	std::ifstream Konfig2;
 	Konfig2.open("Konfiguracija.cfg");
 	std::ofstream KonfigTemp;
@@ -688,33 +776,46 @@ void Artikal::resetovanjeIzvjestaja()
 					getline(Konfig2, red1);
 					getline(Konfig2, red2);
 					getline(Konfig2, red3);
-					if (sRazlika >= 7 && mRazlika >= 31 && gRazlika >= 365)
+					getline(Konfig2, red4);
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika >= 31 && gRazlika >= 365)
 					{
 						KonfigTemp << "IZVJESTAJ:" << '\n';
+						KonfigTemp << "Poslednji dnevni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji sedmicni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji mjesecni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji godisnji reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 					}
-					if (sRazlika >= 7 && mRazlika >= 31 && gRazlika < 365)
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika >= 31 && gRazlika < 365)
 					{
 						KonfigTemp << "IZVJESTAJ:" << '\n';
+						KonfigTemp << "Poslednji dnevni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji sedmicni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji mjesecni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
-						KonfigTemp << red3;
+						KonfigTemp << red4;
 					}
-					if (sRazlika >= 7 && mRazlika < 31 && gRazlika < 365)
+					if (dRazlika > 0 && sRazlika >= 7 && mRazlika < 31 && gRazlika < 365)
 					{
 						KonfigTemp << "IZVJESTAJ:" << '\n';
+						KonfigTemp << "Poslednji dnevni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << "Poslednji sedmicni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
+						KonfigTemp << red3 << '\n';
+						KonfigTemp << red4 << '\n';
+					}
+					if (dRazlika > 0 && sRazlika < 7)
+					{
+						KonfigTemp << "IZVJESTAJ:" << '\n';
+						KonfigTemp << "Poslednji dnevni reset:" << (tPtr->tm_mday) << '/' << (tPtr->tm_mon) + 1 << '/' << (tPtr->tm_year) + 1900 << '\n';
 						KonfigTemp << red2 << '\n';
 						KonfigTemp << red3 << '\n';
+						KonfigTemp << red4 << '\n';
 					}
-					if (sRazlika < 7)
+					if (dRazlika < 1)
 					{
 						KonfigTemp << "IZVJESTAJ:" << '\n';
 						KonfigTemp << red1 << '\n';
 						KonfigTemp << red2 << '\n';
 						KonfigTemp << red3 << '\n';
+						KonfigTemp << red4 << '\n';
 					}
 				}
 				else

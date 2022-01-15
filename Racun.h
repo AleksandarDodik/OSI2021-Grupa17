@@ -8,11 +8,11 @@ class Racun
 {
 private:
 	std::string naziv, barkod, kolicina;
-	double cijenaArtikla, cijenaRacuna,popust;
+	double cijenaArtikla, cijenaRacuna, popust;
 public:
-	
+
 	Racun();
-	Racun(std::string&, std::string&, std::string&, double, double,double);
+	Racun(std::string&, std::string&, std::string&, double, double, double);
 	void setNaziv(std::string&);
 	void setBarkod(std::string&);
 	void setKolicina(std::string&);
@@ -27,7 +27,7 @@ public:
 	double getPopust();
 	void dodavanjeArtikala(std::string&);
 	void upisiArtikal(Artikal&, std::string&);
-	void kreiranjeRacuna(double,double,std::string&);
-	void ispisRacuna();
+	void kreiranjeRacuna(std::string&, double, double, std::string&);
+	void ispisRacuna(std::string&);
 };
 

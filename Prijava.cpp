@@ -6,11 +6,13 @@
 #include<string>
 #include<fstream>
 
-void prijava()
+int prijava()
 {
 	system("cls");
+
 	int daLiPostoji = -1, pokusaji = 0;
 	std::string ime, sifra;
+
 	std::cout << "\nPRIJAVA:\n";
 
 	while (daLiPostoji == -1 && pokusaji < 3)
@@ -33,44 +35,43 @@ void prijava()
 	if (daLiPostoji == 1)
 	{
 		povecajBrojPrijava(ime);
-		printMeniSef();
 	}
 
 	if (daLiPostoji == 2)
 	{
 		povecajBrojPrijava(ime);
 		ImeRadnika = ime;
-		printMeniRadnik();
 	}
 
 	if (daLiPostoji == 10) {
 		promjenaSifre(ime, daLiPostoji);
-		printMeniSef();
 	}
 
 	if (daLiPostoji == 20) {
 		promjenaSifre(ime, daLiPostoji);
 		ImeRadnika = ime;
-		printMeniRadnik();
 	}
+	return daLiPostoji;
 }
 
-//Ako ne postoji nalog vraca 0, ako je sef 1 a ako je radnik 2, ako sef mora promjeniti sifru 10, ako radnik mora promjeniti sifru 20
 int provjeriNalog(std::string& ime, std::string& sifra)
 {
-	std::string br;
+	std::string br;//Broj prijava nakon kog se mijenja sifra, uzima se iz konfiguracije
+
 	std::ifstream Konfig;
 	Konfig.open("Konfiguracija.cfg");
+
 	if (Konfig.is_open())
 	{
 		getline(Konfig, br, ':');
 		getline(Konfig, br);
 		Konfig.close();
 	}
+
 	std::ifstream Baza;
 	std::string temp;
 
-	Baza.open("nalozi.csv");
+	Baza.open("Nalozi.txt");
 
 	while (Baza.good())
 	{
@@ -96,98 +97,122 @@ int provjeriNalog(std::string& ime, std::string& sifra)
 	}
 	Baza.close();
 	return -1;
-
 }
 
-void printMeniSef()
+int printMeniSef()
 {
-	int a;
-	Artikal art;
-	system("cls");
-	std::cout << "-----------------------\n";
-	std::cout << "1. Pregled artikala\n" << "2. Dodavanje artikla\n" << "3. Brisanje artikla\n" << "4. Izvjestaj o prodaji\n\n" << "5. Kreiranje naloga\n" << "6. Brisanje naloga\n\n" << "7. Odjavi se\n" << "8. Zatvori aplikaciju\n";
-	std::cout << "-----------------------\n";
-	do {
-		std::cout << "Unesite broj: ";
-		std::cin.sync();
-		std::cin >> a;
-		std::cin.get();//Da pokupi enter
-	} while (a < 1 || a>8);
-	switch (a)
+	int tok = 1;
+	while (tok == 1)
 	{
-	case 1:
-		art.pregledArtikala();
-		break;
-	case 2:
-		art.dodavanjeArtikla();
-		break;
-	case 3:
-		art.obrisiArtikl();
-		break;
-	case 4:
-		art.izvjestaj();
-		break;
-	case 5:
-		Registracija();
-		break;
-	case 6:
-		obrisiNalog();
-		break;
-	case 7:
-		prijava();
-		break;
-	case 8:
-		break;
+		system("cls");
+
+		int a = 0;
+		Artikal art;
+
+		std::cout << "-----------------------\n";
+		std::cout << "1. Pregled artikala\n" << "2. Dodavanje artikla\n" << "3. Brisanje artikla\n" << "4. Izvjestaj o prodaji\n\n" << "5. Kreiranje naloga\n" << "6. Brisanje naloga\n\n" << "7. Odjavi se\n" << "8. Zatvori aplikaciju\n";
+		std::cout << "-----------------------\n";
+
+		do {
+			std::cout << "Unesite broj: ";
+			std::cin.sync();
+			std::cin >> a;
+			std::cin.get();//Da pokupi enter
+		} while (a < 1 || a>8);
+
+		switch (a)
+		{
+		case 1:
+			art.pregledArtikala();
+			break;
+		case 2:
+			art.dodavanjeArtikla();
+			break;
+		case 3:
+			art.obrisiArtikl();
+			break;
+		case 4:
+			art.izvjestaj();
+			break;
+		case 5:
+			Registracija();
+			break;
+		case 6:
+			obrisiNalog();
+			break;
+		case 7:
+			return 1;
+			break;
+		case 8:
+			tok = 0;
+			break;
+		}
 	}
+	return 0;
 }
 
-void printMeniRadnik()
+int printMeniRadnik()
 {
-	int a;
-	Racun r;
-	system("cls");
-	std::cout << "-----------------------\n";
-	std::cout << "1. Kreiraj novi racun\n\n" << "2. Odjavi se\n" << "3.Zatvori aplikaciju\n";
-	std::cout << "-----------------------\n";
-	do {
-		std::cout << "Unesite broj: ";
-		std::cin.sync();
-		std::cin >> a;
-		std::cin.get();//Da pokupi enter
-	} while (a < 1 || a>3);
-	switch (a)
+	int tok = 1;
+	while (tok == 1)
 	{
-	case 1:
-		r.dodavanjeArtikala(ImeRadnika);
-		break;
-	case 2:
-		prijava();
-		break;
-	case 3:
-		break;
+		system("cls");
+
+		int a;
+		Racun r;
+
+		std::cout << "-----------------------\n";
+		std::cout << "1. Kreiraj novi racun\n\n" << "2. Odjavi se\n" << "3.Zatvori aplikaciju\n";
+		std::cout << "-----------------------\n";
+
+		do {
+			std::cout << "Unesite broj: ";
+			std::cin.sync();
+			std::cin >> a;
+			std::cin.get();//Da pokupi enter
+		} while (a < 1 || a>3);
+
+		switch (a)
+		{
+		case 1:
+			r.dodavanjeArtikala(ImeRadnika);
+			break;
+		case 2:
+			return 1;
+			break;
+		case 3:
+			tok = 0;
+			break;
+		}
 	}
+	return 0;
 }
 
 void promjenaSifre(std::string& Ime, int tip)
 {
 	system("cls");
+
 	std::cout << "Promjena sifre za nalog: " << Ime << std::endl;
 
 	std::string novaSifra, ponovljenaSifra;
+
 	do {
 		std::cout << "\tNova sifra: ";
 		std::getline(std::cin, novaSifra);
 
 		std::cout << "\tPonvoljena nova sifra: ";
 		std::getline(std::cin, ponovljenaSifra);
+
 		if (novaSifra.compare(ponovljenaSifra) != 0)
 			std::cout << "Sifre su razlicite!\n";
+
 	} while (novaSifra.compare(ponovljenaSifra) != 0);
 
 	brisanjeNaloga(Ime);
 
 	std::ofstream BazaNaloga;
-	BazaNaloga.open("nalozi.csv", std::ios::app);
+	BazaNaloga.open("Nalozi.txt", std::ios::app);
+
 	if (BazaNaloga.is_open())
 	{
 		BazaNaloga << Ime << ',' << novaSifra << ',' << ((tip == 10) ? 's' : 'r') << ',' << 0 << '\n';
@@ -200,9 +225,9 @@ void promjenaSifre(std::string& Ime, int tip)
 void povecajBrojPrijava(std::string& Ime)
 {
 	std::string _ime, _sifra, _tip, _brojPrijava;
-	//Otvaranje Temp za citanje
+	//Pronalazenje naloga u bazi
 	std::ifstream BazaNaloga;
-	BazaNaloga.open("nalozi.csv");
+	BazaNaloga.open("Nalozi.txt");
 
 	if (BazaNaloga.is_open())
 	{
@@ -212,16 +237,19 @@ void povecajBrojPrijava(std::string& Ime)
 			getline(BazaNaloga, _sifra, ',');
 			getline(BazaNaloga, _tip, ',');
 			getline(BazaNaloga, _brojPrijava);
+
 			if (_ime.compare(Ime) == 0)
 				break;
+
 		}
 		BazaNaloga.close();
 	}
 
 	brisanjeNaloga(_ime);
-
+	//Upis naloga sa novim brojem prijava
 	std::ofstream Temp;
-	Temp.open("nalozi.csv", std::ios::app);
+	Temp.open("Nalozi.txt", std::ios::app);
+
 	if (Temp.is_open())
 	{
 		Temp << _ime << ',' << _sifra << ',' << _tip << ',' << stoi(_brojPrijava) + 1 << '\n';
