@@ -87,10 +87,20 @@ void Artikal::dodavanjeArtikla()
 	system("cls");
 	std::cout << "\nDodavanje artikla u bazu!(Ako postoji barkod u bazi dodace se kolicina na postojecu)\n";
 
+	int tok = 1;
 	std::string ime, barkod, kolicina, cijena;
-	std::cout << "\tNaziv: ";
-	std::cin.sync();
-	std::getline(std::cin, ime);
+	while (tok == 1)
+	{
+		tok = 0;
+		std::cout << "\tNaziv: ";
+		std::cin.sync();
+		std::getline(std::cin, ime);
+		if (ime.length() > 35)
+		{
+			std::cout << "Predugacak naziv artikla!\n";
+			tok = 1;
+		}
+	}
 
 	std::cout << "\tBarkod: ";
 	std::cin.sync();
@@ -181,6 +191,7 @@ Artikal& Artikal::uzmiPodatkeIzBaze(const std::string& Ime)
 				this->setSedmicna(atof(_sedmicna.c_str()));
 				this->setMjesecna(atof(_mjesecna.c_str()));
 				this->setGodisnja(atof(_godisnja.c_str()));
+				_barkod = "";
 			}
 		}
 		BazaArtikala.close();
@@ -213,7 +224,7 @@ void Artikal::brisanjeArtikla()
 			getline(BazaArtikala, _mjesecna, ',');
 			getline(BazaArtikala, _godisnja);
 
-			if (this->ime.compare(_ime) != 0 && _ime.compare("") != 0)
+			if ((this->barkod).compare(_barkod) != 0 && _ime.compare("") != 0)
 			{
 				Temp << _ime << ',' << _barkod << ',' << _cijena << ',' << _kolicina << ',' << _dnevna << ',' << _sedmicna << ',' << _mjesecna << ',' << _godisnja << '\n';
 			}
@@ -430,7 +441,7 @@ void Artikal::obrisiArtikl()
 				getline(BazaArtikala, _mjesecna, ',');
 				getline(BazaArtikala, _godisnja);
 
-				if (!Ime.compare(_ime))
+				if (Ime.compare(_ime) == 0)
 				{
 					glavnaProvjera = false;
 					break;

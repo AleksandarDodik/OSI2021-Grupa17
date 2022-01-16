@@ -10,12 +10,12 @@ int prijava()
 {
 	system("cls");
 
-	int daLiPostoji = -1, pokusaji = 0;
+	int daLiPostoji = 0, pokusaji = 0;
 	std::string ime, sifra;
 
 	std::cout << "\nPRIJAVA:\n";
 
-	while (daLiPostoji == -1 && pokusaji < 3)
+	while ((daLiPostoji == 0 || daLiPostoji == 5) && pokusaji < 3)
 	{
 		pokusaji++;
 
@@ -26,7 +26,7 @@ int prijava()
 		std::getline(std::cin, sifra);
 
 		daLiPostoji = provjeriNalog(ime, sifra);
-		if (daLiPostoji == -1)
+		if ((daLiPostoji == 0 || daLiPostoji == 5) && pokusaji < 3)
 			std::cout << "Ponovite unos!\n";
 	}
 	if (pokusaji >= 3)
@@ -72,31 +72,38 @@ int provjeriNalog(std::string& ime, std::string& sifra)
 	std::string temp;
 
 	Baza.open("Nalozi.txt");
-
-	while (Baza.good())
+	if (Baza.is_open())
 	{
-		std::string _ime, _sifra, _tipNaloga, _brojPrijava;
-
-		std::getline(Baza, _ime, ',');
-		std::getline(Baza, _sifra, ',');
-		std::getline(Baza, _tipNaloga, ',');
-		std::getline(Baza, _brojPrijava);
-
-		if (ime.compare(_ime) == 0 && sifra.compare(_sifra) == 0 && ime.compare("") != 0 && sifra.compare("") != 0)
+		while (!Baza.eof())
 		{
-			Baza.close();
-			if (_tipNaloga.compare("s") == 0 && _brojPrijava.compare(br) == 0)
-				return 10;
-			if (_tipNaloga.compare("r") == 0 && _brojPrijava.compare(br) == 0)
-				return 20;
-			if (_tipNaloga.compare("s") == 0)
-				return 1;
-			if (_tipNaloga.compare("r") == 0)
-				return 2;
+			std::string _ime, _sifra, _tipNaloga, _brojPrijava;
+
+			std::getline(Baza, _ime, ',');
+			std::getline(Baza, _sifra, ',');
+			std::getline(Baza, _tipNaloga, ',');
+			std::getline(Baza, _brojPrijava);
+
+			if (ime.compare(_ime) == 0 && sifra.compare(_sifra) == 0 && ime.compare("") != 0 && sifra.compare("") != 0)
+			{
+				Baza.close();
+				if (_tipNaloga.compare("s") == 0 && _brojPrijava.compare(br) == 0)
+					return 10;
+				if (_tipNaloga.compare("r") == 0 && _brojPrijava.compare(br) == 0)
+					return 20;
+				if (_tipNaloga.compare("s") == 0)
+					return 1;
+				if (_tipNaloga.compare("r") == 0)
+					return 2;
+			}
+			if (ime.compare(_ime) == 0 && ime.compare("") != 0 && sifra.compare("") != 0)
+			{
+				Baza.close();
+				return 5;
+			}
 		}
+		Baza.close();
 	}
-	Baza.close();
-	return -1;
+	return 0;
 }
 
 int printMeniSef()

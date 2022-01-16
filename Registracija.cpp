@@ -3,6 +3,8 @@
 #include<iostream>
 #include<string>
 #include<fstream>
+#include<chrono>
+#include<thread>
 
 void Registracija()
 {
@@ -15,6 +17,7 @@ void Registracija()
 	std::cout << "Unesite ime i sifru duzu od 4 karaktera!\n";
 	do
 	{
+		//Unos podataka o nalogu
 		do
 		{
 			ispravnostImena = true;
@@ -23,18 +26,21 @@ void Registracija()
 			std::cin.sync();
 			std::cout << "\tKorisnicko ime: ";
 			std::getline(std::cin, Ime);
+
 			if (Ime.length() < 4)
 				ispravnostImena = false;
 
 			std::cin.sync();
 			std::cout << "\tSifra: ";
 			std::getline(std::cin, Sifra1);
+
 			if (Sifra1.length() < 4)
 				ispravnostSifre = false;
 
 			std::cin.sync();
 			std::cout << "\tPonovljena sifra: ";
 			std::getline(std::cin, Sifra2);
+
 			if (Sifra1.compare(Sifra2) != 0)
 			{
 				ispravnostSifre = false;
@@ -43,7 +49,8 @@ void Registracija()
 			std::cin.sync();
 			std::cout << "\tTip naloga[s|r]: ";
 			std::getline(std::cin, Tip);
-			if (Tip.compare("s") == 0 || Tip.compare("S") == 0 || Tip.compare("r") == 0 || Tip.compare("R") == 0)
+
+			if (Tip.compare("s") == 0 || Tip.compare("r") == 0)
 				ispravnostTipa = true;
 
 			if (!ispravnostImena)
@@ -55,34 +62,21 @@ void Registracija()
 
 		} while (!ispravnostImena || !ispravnostSifre || !ispravnostTipa);
 
-		std::ifstream BazaNaloga;
-		BazaNaloga.open("nalozi.csv");
-
-		std::string _ime, _sifra, _tip;
-
-		if (BazaNaloga.is_open())
+		if (provjeriNalog(Ime, Sifra1) != 0)
 		{
-			while (!BazaNaloga.eof())
-			{
-				getline(BazaNaloga, _ime, ',');
-				getline(BazaNaloga, _sifra, ',');
-				getline(BazaNaloga, _tip);
+			std::cout << "\nNalog vec postoji!\n";
+			glavnaProvjera = false;
 
-				if (!Ime.compare(_ime))
-				{
-					std::cout << "\nNalog vec postoji!\n";
-					glavnaProvjera = false;
-					break;
-				}
-				else
-					glavnaProvjera = true;
-			}
 		}
-		BazaNaloga.close();
+		else
+		{
+			glavnaProvjera = true;
+		}
 	} while (!glavnaProvjera);
 
+	//Upis naloga u bazu
 	std::ofstream BazaNaloga;
-	BazaNaloga.open("nalozi.csv", std::ios::app);
+	BazaNaloga.open("Nalozi.txt", std::ios::app);
 
 	if (glavnaProvjera)
 	{
@@ -90,9 +84,12 @@ void Registracija()
 	}
 	BazaNaloga.close();
 
+	//Ako smo dodali sefa u bazu brisemo admina
 	std::string _ime, _sifra, _tip, _brPrijava;
+
 	std::ifstream Baza;
-	Baza.open("nalozi.csv");
+	Baza.open("Nalozi.txt");
+
 	if (Baza.is_open())
 	{
 		while (!Baza.eof())
@@ -101,6 +98,7 @@ void Registracija()
 			getline(Baza, _sifra, ',');
 			getline(Baza, _tip, ',');
 			getline(Baza, _brPrijava);
+
 			if (_ime.compare("admin") == 0 && Tip.compare("s") == 0)
 			{
 				Baza.close();
@@ -109,7 +107,6 @@ void Registracija()
 		}
 		Baza.close();
 	}
-	printMeniSef();
 
 }
 
@@ -122,84 +119,70 @@ void obrisiNalog() {
 	std::cout << "\nBRISANJE NALOGA\n";
 	do
 	{
-		do
+		ispravnostImena = true;
+		ispravnostSifre = true;
+
+		std::cin.sync();
+		std::cout << "\tKorisnicko ime: ";
+		std::getline(std::cin, Ime);
+
+		if (Ime.length() < 4)
+			ispravnostImena = false;
+
+		std::cin.sync();
+		std::cout << "\tSifra: ";
+		std::getline(std::cin, Sifra1);
+
+		if (Sifra1.length() < 4)
+			ispravnostSifre = false;
+
+		std::cin.sync();
+		std::cout << "\tPonovljena sifra: ";
+		std::getline(std::cin, Sifra2);
+
+		if (Sifra1.compare(Sifra2) != 0)
 		{
-			ispravnostImena = true;
-			ispravnostSifre = true;
-
-			std::cin.sync();
-			std::cout << "\tKorisnicko ime: ";
-			std::getline(std::cin, Ime);
-			if (Ime.length() < 4)
-				ispravnostImena = false;
-
-			std::cin.sync();
-			std::cout << "\tSifra: ";
-			std::getline(std::cin, Sifra1);
-			if (Sifra1.length() < 4)
-				ispravnostSifre = false;
-
-			std::cin.sync();
-			std::cout << "\tPonovljena sifra: ";
-			std::getline(std::cin, Sifra2);
-			if (Sifra1.compare(Sifra2) != 0)
-			{
-				ispravnostSifre = false;
-			}
-
-			if (!ispravnostImena)
-				std::cout << "Pogresno ime!\n";
-			if (!ispravnostSifre)
-				std::cout << "Pogresna sifra!\n";
-
-		} while (!ispravnostImena || !ispravnostSifre);
-
-		std::ifstream BazaNaloga;
-		BazaNaloga.open("nalozi.csv");
-
-		std::string _ime, _sifra, _tip, _brojPrijava;
-
-		if (BazaNaloga.is_open())
-		{
-			while (!BazaNaloga.eof())
-			{
-				getline(BazaNaloga, _ime, ',');
-				getline(BazaNaloga, _sifra, ',');
-				getline(BazaNaloga, _tip, ',');
-				getline(BazaNaloga, _brojPrijava);
-
-				if (!Ime.compare(_ime) && !Sifra1.compare(_sifra))
-				{
-					glavnaProvjera = false;
-					break;
-				}
-				else
-					glavnaProvjera = true;
-			}
+			ispravnostSifre = false;
 		}
-		BazaNaloga.close();
-		if (glavnaProvjera)
-			std::cout << "Nalog se ne nalazi u Bazi!\n";
-	} while (glavnaProvjera);
 
+		if (!ispravnostImena)
+			std::cout << "Pogresno ime!\n";
+
+		if (!ispravnostSifre)
+			std::cout << "Pogresna sifra!\n";
+
+	} while (!ispravnostImena || !ispravnostSifre);
+
+
+	if (provjeriNalog(Ime, Sifra1) != 0 && provjeriNalog(Ime, Sifra1) != 5)
+	{
+		glavnaProvjera = false;
+	}
+	else
+	{
+		glavnaProvjera = true;
+	}
+
+	if (glavnaProvjera)
+		std::cout << "Nalog se ne nalazi u Bazi2!\n";
+	std::this_thread::sleep_for(std::chrono::milliseconds(1600));
 	if (!glavnaProvjera)
 	{
 		brisanjeNaloga(Ime);
 	}
-	printMeniSef();
 }
 
 void brisanjeNaloga(std::string& Ime)
 {
 	//Otvaranje baze naloga za citanje
 	std::ifstream BazaNaloga;
-	BazaNaloga.open("nalozi.csv");
+	BazaNaloga.open("Nalozi.txt");
 
 	std::string _ime, _sifra, _tip, _brojPrijava;
 
 	//Kreiranje nove baze za upis
 	std::ofstream Temp;
-	Temp.open("NaloziTemp.csv", std::ios::app);
+	Temp.open("NaloziTemp.txt", std::ios::app);
 
 	if (BazaNaloga.is_open())
 	{
@@ -220,15 +203,15 @@ void brisanjeNaloga(std::string& Ime)
 	Temp.close();
 
 	//Prepisivanje bez obrisanog naloga
-	std::remove("nalozi.csv");
+	std::remove("Nalozi.txt");
 
 	//Otvaranje Temp za citanje
 	std::ifstream Temp2;
-	Temp2.open("NaloziTemp.csv");
+	Temp2.open("NaloziTemp.txt");
 
-	//Kreiranje praznog nalozi.csv za upis
+	//Kreiranje praznog Nalozi.txt za upis
 	std::ofstream BazaNaloga2;
-	BazaNaloga2.open("nalozi.csv", std::ios::app);
+	BazaNaloga2.open("Nalozi.txt", std::ios::app);
 	if (Temp2.is_open())
 	{
 		while (!Temp2.eof())
@@ -243,6 +226,6 @@ void brisanjeNaloga(std::string& Ime)
 		BazaNaloga2.close();
 	}
 	Temp2.close();
-	std::remove("NaloziTemp.csv");
+	std::remove("NaloziTemp.txt");
 
 }
