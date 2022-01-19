@@ -83,11 +83,16 @@ void Racun::dodavanjeArtikala(std::string& imeRadnika)
 		{
 			std::cout << "\tKolicina: ";
 			std::getline(std::cin, kolicina);
-			art.uzmiPodatkeIzBaze(naziv);
-			upisiArtikal(art, kolicina);
-			art.brisanjeKolicineArtikala(atof(kolicina.c_str()));
-			art.izmjenaIzvjestaja(atof(kolicina.c_str()));
-			std::cout << "\n";
+			if (kolicina.compare("") == 0 || atof(kolicina.c_str()) < 0)
+				std::cout << "Pogresna kolicina, ponovite unos!\n";
+			else
+			{
+				art.uzmiPodatkeIzBaze(naziv);
+				upisiArtikal(art, kolicina);
+				art.brisanjeKolicineArtikala(atof(kolicina.c_str()));
+				art.izmjenaIzvjestaja(atof(kolicina.c_str()));
+				std::cout << "\n";
+			}
 		}
 		else if (naziv.compare("RACUN") == 0 || naziv.compare("IZLAZ") == 0)
 			tok = false;
